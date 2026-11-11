@@ -7,7 +7,7 @@ from datetime import datetime
 # 1. Configuração da página
 st.set_page_config(page_title="Diabetes Management System", page_icon="🩸", layout="wide")
 
-# 2. Credenciais de Acesso (Edite aqui se quiser mudar usuário ou senha)
+# 2. Credenciais de Acesso
 VALID_USERNAME = "admin"
 VALID_PASSWORD = "Diabetes@2026"
 
@@ -17,7 +17,6 @@ if "logged_in" not in st.session_state:
 
 # --- TELA DE LOGIN (COM FUNDO AZUL EXCLUSIVO) ---
 if not st.session_state.logged_in:
-    # Aplica o estilo azul somente na tela inicial de login
     st.markdown("""
         <style>
         .stApp {
@@ -34,7 +33,6 @@ if not st.session_state.logged_in:
     st.title("🩸 Diabetes Management System")
     st.markdown("### Secure Clinical Access")
     
-    # Centraliza o formulário na tela usando proporção de colunas
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.form("login_form"):
@@ -51,7 +49,6 @@ if not st.session_state.logged_in:
 
 # --- SISTEMA PRINCIPAL (VISUAL LIMPO APÓS LOGIN) ---
 else:
-    # Barra lateral com saudação e botão de sair
     st.sidebar.title("Welcome, Senior Developer!")
     if st.sidebar.button("Logout"):
         st.session_state.logged_in = False
@@ -183,3 +180,36 @@ else:
                     h1 {{ color: #0066cc; border-bottom: 2px solid #0066cc; }}
                     .box {{ background: #f2f7fc; border-left: 4px solid #0066cc; padding: 15px; margin-bottom: 20px; }}
                     table {{ width: 100%; border-collapse: collapse; break-inside: avoid; }}
+                    th, td {{ border: 1px solid #ccc; padding: 8px; text-align: left; }}
+                    th {{ background-color: #0066cc; color: white; }}
+                </style>
+            </head>
+            <body>
+                <h1>Clinical Glycemic Report</h1>
+                <div class="box">
+                    <p><strong>Average Glucose:</strong> {avg_glucose} mg/dL</p>
+                    <p><strong>Estimated HbA1c:</strong> {estimated_hba1c}%</p>
+                    <p><strong>Range:</strong> {min_glucose} - {max_glucose} mg/dL</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>Date & Time</th><th>Glucose</th><th>Type</th></tr>
+                    </thead>
+                    <tbody>{rows_html}</tbody>
+                </table>
+            </body>
+            </html>
+            """
+            return weasyprint.HTML(string=html_content).write_pdf()
+
+        st.markdown("#### 📄 Export Report")
+        pdf_bytes = generate_pdf()
+        st.download_button(
+            label="📥 Download PDF Report",
+            data=pdf_bytes,
+            file_name="diabetes_report.pdf",
+            mime="application/pdf"
+        )
+    else:
+        st.info("No glucose records found yet. Add a log above to view analytics and export reports.")
+
