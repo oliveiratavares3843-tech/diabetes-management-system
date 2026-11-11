@@ -1,6 +1,7 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
+from fpdf import FPDF
 from datetime import datetime, timedelta
 
 # 1. Page Configuration
@@ -44,7 +45,7 @@ def home_screen():
         st.subheader("Clinical Telemetry, Glycemic Analytics & Medical Reporting")
         st.markdown("---")
         st.write(
-            "A full-stack clinical monitoring application built with Python, Streamlit, SQLite, and WeasyPrint. "
+            "A full-stack clinical monitoring application built with Python, Streamlit, and SQLite. "
             "Track blood glucose levels, insulin administration, carbohydrate intake, and generate automated A4 medical reports."
         )
         st.write("")
