@@ -39,7 +39,7 @@ def apply_welcome_style():
 def home_screen():
     apply_welcome_style()
     st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns(3)
     with col2:
         st.title("🩸 Diabetes Management System")
         st.subheader("Clinical Telemetry, Glycemic Analytics & Medical Reporting")
@@ -58,7 +58,7 @@ def login_screen():
     apply_welcome_style()
     st.markdown("<br>", unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns(3)
     with col2:
         st.title("🩸 Diabetes Management System")
         st.markdown("### Secure Clinical Access")
@@ -237,4 +237,6 @@ def system_screen():
         avg_glucose = int(df_glucose['glucose_level'].mean())
         max_glucose = int(df_glucose['glucose_level'].max())
         min_glucose = int(df_glucose['glucose_level'].min())
+        estimated_hba1c = round((avg_glucose + 46.7) / 28.7, 1)
+
 
