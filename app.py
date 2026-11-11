@@ -1,7 +1,6 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-from fpdf import FPDF
 from datetime import datetime, timedelta
 
 # 1. Page Configuration
@@ -22,7 +21,7 @@ DEMO_USERS = {
 # --- SCREEN 1: HOME PAGE ---
 def home_screen():
     st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.title("🩸 Diabetes Management System")
         st.subheader("Clinical Telemetry, Glycemic Analytics & Medical Reporting")
@@ -39,7 +38,7 @@ def home_screen():
 # --- SCREEN 2: LOGIN PAGE ---
 def login_screen():
     st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.title("🩸 Diabetes Management System")
         st.markdown("### Secure Clinical Access")
