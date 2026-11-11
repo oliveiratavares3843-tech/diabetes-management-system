@@ -19,26 +19,10 @@ DEMO_USERS = {
     "admin": "Diabetes@2026"
 }
 
-# Safe custom blue style for Streamlit 1.67+
-def apply_welcome_style():
-    st.markdown("""
-        <style>
-        [data-testid="stAppViewContainer"] {
-            background-color: #e6f2ff;
-        }
-        .stButton>button {
-            background-color: #0066cc;
-            color: white;
-            font-weight: bold;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
 # --- SCREEN 1: HOME PAGE ---
 def home_screen():
-    apply_welcome_style()
     st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns(3)
     with col2:
         st.title("🩸 Diabetes Management System")
         st.subheader("Clinical Telemetry, Glycemic Analytics & Medical Reporting")
@@ -48,16 +32,14 @@ def home_screen():
             "Track blood glucose levels, insulin administration, carbohydrate intake, and generate automated A4 medical reports."
         )
         st.write("")
-        if st.button("Access Clinical System ➡️", use_container_width=True):
+        if st.button("Access Clinical System ➡️", type="primary", use_container_width=True):
             st.session_state.page = "login"
             st.rerun()
 
 # --- SCREEN 2: LOGIN PAGE ---
 def login_screen():
-    apply_welcome_style()
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns(3)
     with col2:
         st.title("🩸 Diabetes Management System")
         st.markdown("### Secure Clinical Access")
@@ -68,7 +50,7 @@ def login_screen():
         with st.form("login_form"):
             username_input = st.text_input("Username")
             password_input = st.text_input("Password", type="password")
-            submit_login = st.form_submit_button("Login", use_container_width=True)
+            submit_login = st.form_submit_button("Login", type="primary", use_container_width=True)
             
             if submit_login:
                 secrets_users = st.secrets.get("usuarios", {}) if hasattr(st, "secrets") else {}
@@ -238,4 +220,11 @@ def system_screen():
         min_glucose = int(df_glucose['glucose_level'].min())
         estimated_hba1c = round((avg_glucose + 46.7) / 28.7, 1)
 
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric(label="Average Glucose", value=f"{avg_glucose} mg/dL")
+        c2.metric(label="Estimated HbA1c", value=f"{estimated_hba1c} %")
+        c3.metric(label="Highest / Lowest", value=f"{max_glucose} / {min_glucose} mg/dL")
+        c4.metric(label="Total Readings", value=len(df_glucose))
+
+        st.markdown("#### 📈 Glucose Trends Over Time")
 
