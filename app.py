@@ -2,45 +2,61 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import weasyprint
-import streamlit_authenticator as stauth
 from datetime import datetime
 
-# Configuração da página do Streamlit
+# 1. Configuração da página
 st.set_page_config(page_title="Diabetes Management System", page_icon="🩸", layout="wide")
 
-# --- CONFIGURAÇÃO DO SISTEMA DE AUTENTICAÇÃO ---
-# A senha configurada abaixo é "admin123" criptografada com hash bcrypt
-credentials = {
-    "usernames": {
-        "admin": {
-            "name": "Senior Developer",
-            "password": "$2b$12$6K7/76W0X1oF7M9PkWmI1.qC9UvR0B4t8w8E6oR9C7U6v6h8V8X1K" 
+# 2. Credenciais de Acesso (Edite aqui se quiser mudar usuário ou senha)
+VALID_USERNAME = "admin"
+VALID_PASSWORD = "Diabetes@2026"
+
+# Inicializa o controle de sessão
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+# --- TELA DE LOGIN (COM FUNDO AZUL EXCLUSIVO) ---
+if not st.session_state.logged_in:
+    # Aplica o estilo azul somente na tela inicial de login
+    st.markdown("""
+        <style>
+        .stApp {
+            background-color: #e6f2ff;
+            color: #00264d;
         }
-    }
-}
+        .stButton>button {
+            background-color: #0066cc;
+            color: white;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-# Inicializa o gerenciador de autenticação
-authenticator = stauth.Authenticate(
-    credentials,
-    cookie_name="diabetes_auth_cookie",
-    key="diabetes_system_secret_key",
-    cookie_expiry_days=1
-)
-
-# Renderiza os campos de Login e Senha na tela (Compatível com v0.4+)
-authenticator.login(location="main")
-
-# Lê os dados diretamente da sessão interna do Streamlit
-name = st.session_state.get("name")
-authentication_status = st.session_state.get("authentication_status")
-username = st.session_state.get("username")
-
-# --- CENÁRIO 1: LOGIN EFETUADO COM SUCESSO ---
-if authentication_status:
-    # Barra lateral com botão de Logout e identificação do usuário
-    st.sidebar.title(f"Welcome, {name}!")
-    authenticator.logout("Logout", "sidebar")
+    st.title("🩸 Diabetes Management System")
+    st.markdown("### Secure Clinical Access")
     
+    # Centraliza o formulário na tela usando proporção de colunas
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        with st.form("login_form"):
+            username_input = st.text_input("Username")
+            password_input = st.text_input("Password", type="password")
+            submit_login = st.form_submit_button("Login", use_container_width=True)
+            
+            if submit_login:
+                if username_input.strip() == VALID_USERNAME and password_input.strip() == VALID_PASSWORD:
+                    st.session_state.logged_in = True
+                    st.rerun()
+                else:
+                    st.error("Incorrect username or password.")
+
+# --- SISTEMA PRINCIPAL (VISUAL LIMPO APÓS LOGIN) ---
+else:
+    # Barra lateral com saudação e botão de sair
+    st.sidebar.title("Welcome, Senior Developer!")
+    if st.sidebar.button("Logout"):
+        st.session_state.logged_in = False
+        st.rerun()
+
     DB_NAME = "diabetes_management.db"
 
     # Inicialização do banco de dados SQLite
@@ -78,7 +94,7 @@ if authentication_status:
 
     init_db()
 
-    # Título Principal do Sistema Protegido
+    # Título Principal do Sistema
     st.title("🩸 Diabetes Management System")
     st.markdown("Secure Telemetry Environment - Track and monitor clinical data.")
 
@@ -198,11 +214,4 @@ if authentication_status:
     else:
         st.info("No glucose data logged yet. Fill out the form above to populate the analytics dashboard.")
 
-# --- CENÁRIO 2: SENHA OU USUÁRIO INCORRETOS ---
-elif authentication_status is False:
-    st.error("Username/password is incorrect")
-
-# --- CENÁRIO 3: TELA INICIAL AGUARDANDO DADOS ---
-elif authentication_status is None:
-    st.warning("Please enter your username and password to access clinical dashboard.")
 
