@@ -19,13 +19,12 @@ DEMO_USERS = {
     "admin": "Diabetes@2026"
 }
 
-# Custom blue style for Home and Login screens
+# Safe custom blue style for Streamlit 1.67+
 def apply_welcome_style():
     st.markdown("""
         <style>
-        .stApp {
+        [data-testid="stAppViewContainer"] {
             background-color: #e6f2ff;
-            color: #00264d;
         }
         .stButton>button {
             background-color: #0066cc;
@@ -39,7 +38,7 @@ def apply_welcome_style():
 def home_screen():
     apply_welcome_style()
     st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.title("🩸 Diabetes Management System")
         st.subheader("Clinical Telemetry, Glycemic Analytics & Medical Reporting")
@@ -58,7 +57,7 @@ def login_screen():
     apply_welcome_style()
     st.markdown("<br>", unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.title("🩸 Diabetes Management System")
         st.markdown("### Secure Clinical Access")
