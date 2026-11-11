@@ -3,7 +3,7 @@ DME
 A modern, full-stack medical telemetry dashboard and analytics web application designed to track blood glucose levels, insulin dosages, and carbohydrate intake. Built for high-volume data handling and clinical report generation.
 
 ## 🚀 Live Demo
-* **Live System Link:** [INSERT YOUR STREAMLIT CLOUD URL HERE]
+* **Live System Link:** [https://diabetes-management-system.streamlit.app/]
 
 ## 🛠️ Architecture & Core Features
 
