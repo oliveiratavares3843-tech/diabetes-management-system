@@ -1,7 +1,6 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-import weasyprint
 from datetime import datetime, timedelta
 
 # 1. Page Configuration
