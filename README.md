@@ -4,6 +4,12 @@ A modern, full-stack medical telemetry dashboard and analytics web application d
 
 ## 🚀 Live Demo
 * **Live System Link:** [https://diabetes-management-system.streamlit.app/]
+* ### 🔑 Demo Access Credentials
+
+To test the live clinical dashboard, use the following credentials on the login screen:
+* **Username:** `admin`
+* **Password:** `Diabetes@2026`
+
 
 ## 🛠️ Architecture & Core Features
 
