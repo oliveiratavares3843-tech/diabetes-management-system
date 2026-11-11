@@ -1,92 +1,65 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-from datetime import datetime, timedelta
+import weasyprint
+from datetime import datetime
 
-# 1. Page Configuration
+# 1. Configuração da página
 st.set_page_config(page_title="Diabetes Management System", page_icon="🩸", layout="wide")
 
-# 2. Session State Initialization
-if "page" not in st.session_state:
-    st.session_state.page = "home"
+# 2. Credenciais de Acesso (Edite aqui se quiser mudar usuário ou senha)
+VALID_USERNAME = "admin"
+VALID_PASSWORD = "Diabetes@2026"
+
+# Inicializa o controle de sessão
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# Demo credentials for recruiters + your original credentials
-DEMO_USERS = {
-    "recruiter": "diabetes2026",
-    "admin": "Diabetes@2026"
-}
+# --- TELA DE LOGIN (COM FUNDO AZUL EXCLUSIVO) ---
+if not st.session_state.logged_in:
+    # Aplica o estilo azul somente na tela inicial de login
+    st.markdown("""
+        <style>
+        .stApp {
+            background-color: #e6f2ff;
+            color: #00264d;
+        }
+        .stButton>button {
+            background-color: #0066cc;
+            color: white;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-# --- SCREEN 1: HOME PAGE ---
-def home_screen():
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.title("🩸 Diabetes Management System")
+    st.markdown("### Secure Clinical Access")
+    
+    # Centraliza o formulário na tela usando proporção de colunas
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.title("🩸 Diabetes Management System")
-        st.subheader("Clinical Telemetry, Glycemic Analytics & Medical Reporting")
-        st.markdown("---")
-        st.write(
-            "A full-stack clinical monitoring application built with Python, Streamlit, and SQLite. "
-            "Track blood glucose levels, insulin administration, carbohydrate intake, and generate automated A4 medical reports."
-        )
-        st.write("")
-        if st.button("Access Clinical System ➡️", type="primary", use_container_width=True):
-            st.session_state.page = "login"
-            st.rerun()
-
-# --- SCREEN 2: LOGIN PAGE ---
-def login_screen():
-    st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.title("🩸 Diabetes Management System")
-        st.markdown("### Secure Clinical Access")
-        
-        # Visible demo credentials box for recruiters
-        st.info("👋 **Recruiter / Visitor Demo Access:**\n\n* **Username:** `recruiter`\n* **Password:** `diabetes2026`")
-
         with st.form("login_form"):
             username_input = st.text_input("Username")
             password_input = st.text_input("Password", type="password")
-            submit_login = st.form_submit_button("Login", type="primary", use_container_width=True)
+            submit_login = st.form_submit_button("Login", use_container_width=True)
             
             if submit_login:
-                secrets_users = st.secrets.get("usuarios", {}) if hasattr(st, "secrets") else {}
-                valid_users = {**DEMO_USERS, **secrets_users}
-
-                u_clean = username_input.strip()
-                p_clean = password_input.strip()
-
-                if u_clean in valid_users and str(valid_users[u_clean]) == p_clean:
+                if username_input.strip() == VALID_USERNAME and password_input.strip() == VALID_PASSWORD:
                     st.session_state.logged_in = True
-                    st.session_state.current_user = u_clean
-                    st.session_state.page = "system"
                     st.rerun()
                 else:
-                    st.error("⚠️ Incorrect username or password.")
-        
-        if st.button("⬅️ Back to Home", use_container_width=True):
-            st.session_state.page = "home"
-            st.rerun()
+                    st.error("Incorrect username or password.")
 
-# --- SCREEN 3: MAIN CLINICAL SYSTEM ---
-def system_screen():
-    st.sidebar.title("👤 Active Session")
-    st.sidebar.info(f"Logged in as: **{st.session_state.current_user}**")
-    
-    if st.sidebar.button("🚪 Logout", use_container_width=True):
+# --- SISTEMA PRINCIPAL (VISUAL LIMPO APÓS LOGIN) ---
+else:
+    # Barra lateral com saudação e botão de sair
+    st.sidebar.title("Welcome, Senior Developer!")
+    if st.sidebar.button("Logout"):
         st.session_state.logged_in = False
-        st.session_state.page = "home"
         st.rerun()
 
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("🧪 Portfolio Demo Tools")
-    st.sidebar.caption("Populate the database with sample readings to instantly test charts and PDF reports.")
-    
     DB_NAME = "diabetes_management.db"
 
-    # SQLite Database Initialization
+    # Inicialização do banco de dados SQLite
     def init_db():
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
@@ -121,31 +94,11 @@ def system_screen():
 
     init_db()
 
-    # Button to seed demo data for recruiters
-    if st.sidebar.button("📊 Load Sample Clinical Data"):
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        now = datetime.now()
-        samples = [
-            (98, "Fasting", (now - timedelta(days=3)).strftime("%Y-%m-%d 07:30:00"), "Normal morning reading"),
-            (142, "Post-meal", (now - timedelta(days=2)).strftime("%Y-%m-%d 13:45:00"), "After lunch"),
-            (110, "Pre-meal", (now - timedelta(days=1)).strftime("%Y-%m-%d 19:00:00"), "Before dinner"),
-            (104, "Fasting", now.strftime("%Y-%m-%d 08:00:00"), "Stable fasting level")
-        ]
-        cursor.executemany(
-            "INSERT INTO blood_glucose (glucose_level, measurement_type, measured_at, notes) VALUES (?, ?, ?, ?)",
-            samples
-        )
-        conn.commit()
-        conn.close()
-        st.sidebar.success("Sample data loaded!")
-        st.rerun()
-
-    # Main Title
+    # Título Principal do Sistema
     st.title("🩸 Diabetes Management System")
     st.markdown("Secure Telemetry Environment - Track and monitor clinical data.")
 
-    # Data Entry Section
+    # Seção de Entrada de Dados
     st.subheader("📝 Data Entry")
     tab1, tab2, tab3 = st.tabs(["Blood Glucose", "Insulin Doses", "Meals & Carbs"])
 
@@ -157,13 +110,10 @@ def system_screen():
             time_input = st.time_input("Time", datetime.now().time())
             notes = st.text_area("Notes / Symptoms", placeholder="e.g., Felt a bit dizzy")
             if st.form_submit_button("Save Glucose Log"):
-                measured_at = f"{date_input} {time_input.strftime('%H:%M:%S')}"
+                measured_at = f"{date_input} {time_input}"
                 conn = sqlite3.connect(DB_NAME)
                 cursor = conn.cursor()
-                cursor.execute(
-                    "INSERT INTO blood_glucose (glucose_level, measurement_type, measured_at, notes) VALUES (?, ?, ?, ?)",
-                    (glucose_level, measurement_type, measured_at, notes)
-                )
+                cursor.execute("INSERT INTO blood_glucose (glucose_level, measurement_type, measured_at, notes) VALUES (?, ?, ?, ?)", (glucose_level, measurement_type, measured_at, notes))
                 conn.commit()
                 conn.close()
                 st.success(f"Successfully recorded: {glucose_level} mg/dL")
@@ -175,13 +125,10 @@ def system_screen():
             date_input = st.date_input("Date ", datetime.now().date())
             time_input = st.time_input("Time ", datetime.now().time())
             if st.form_submit_button("Save Insulin Log"):
-                applied_at = f"{date_input} {time_input.strftime('%H:%M:%S')}"
+                applied_at = f"{date_input} {time_input}"
                 conn = sqlite3.connect(DB_NAME)
                 cursor = conn.cursor()
-                cursor.execute(
-                    "INSERT INTO insulin_doses (dosage, insulin_type, applied_at) VALUES (?, ?, ?)",
-                    (dosage, insulin_type, applied_at)
-                )
+                cursor.execute("INSERT INTO insulin_doses (dosage, insulin_type, applied_at) VALUES (?, ?, ?)", (dosage, insulin_type, applied_at))
                 conn.commit()
                 conn.close()
                 st.success(f"Successfully recorded: {dosage} units")
@@ -193,20 +140,17 @@ def system_screen():
             date_input = st.date_input("Date ", datetime.now().date())
             time_input = st.time_input("Time ", datetime.now().time())
             if st.form_submit_button("Save Meal Log"):
-                consumed_at = f"{date_input} {time_input.strftime('%H:%M:%S')}"
+                consumed_at = f"{date_input} {time_input}"
                 conn = sqlite3.connect(DB_NAME)
                 cursor = conn.cursor()
-                cursor.execute(
-                    "INSERT INTO meals (meal_type, carbs_grams, consumed_at) VALUES (?, ?, ?)",
-                    (meal_type, carbs_grams, consumed_at)
-                )
+                cursor.execute("INSERT INTO meals (meal_type, carbs_grams, consumed_at) VALUES (?, ?, ?)", (meal_type, carbs_grams, consumed_at))
                 conn.commit()
                 conn.close()
                 st.success(f"Successfully recorded: {carbs_grams}g of carbs")
 
     st.divider()
 
-    # Dashboard & Reports
+    # Dashboard e Relatórios
     st.subheader("📊 Analytics Dashboard")
     conn = sqlite3.connect(DB_NAME)
     df_glucose = pd.read_sql_query("SELECT glucose_level, measurement_type, measured_at FROM blood_glucose ORDER BY measured_at ASC", conn)
@@ -226,4 +170,16 @@ def system_screen():
         c4.metric(label="Total Readings", value=len(df_glucose))
 
         st.markdown("#### 📈 Glucose Trends Over Time")
+        st.line_chart(df_glucose.set_index('measured_at')['glucose_level'])
 
+        def generate_pdf():
+            rows_html = "".join([f"<tr><td>{r['measured_at']}</td><td>{r['glucose_level']} mg/dL</td><td>{r['measurement_type']}</td></tr>" for _, r in df_glucose.tail(10).iterrows()])
+            html_content = f"""
+            <html>
+            <head>
+                <style>
+                    @page {{ size: A4; margin: 20mm; }}
+                    body {{ font-family: Arial, sans-serif; color: #333; }}
+                    h1 {{ color: #0066cc; border-bottom: 2px solid #0066cc; }}
+                    .box {{ background: #f2f7fc; border-left: 4px solid #0066cc; padding: 15px; margin-bottom: 20px; }}
+                    table {{ width: 100%; border-collapse: collapse; break-inside: avoid; }}
